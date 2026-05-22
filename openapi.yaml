@@ -54,11 +54,13 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Nota"
-
                   next_cursor:
                     type: string
                     nullable: true
                     description: Token para próxima página
+                  has_more:
+                    type: boolean
+                    description: Se há mais páginas
 
                   has_more:
                     type: boolean
