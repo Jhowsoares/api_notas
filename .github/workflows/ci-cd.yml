@@ -5,27 +5,25 @@ name: CI/CD — Minha API
 on:
   push:
     branches: [main]
-  workflow_dispatch:        # permite executar manualmente
+  workflow_dispatch: # permite executar manualmente
 
 jobs:
-
   # ─────────────────────────────────────────────────────
   # JOB 1: VALIDAR O CONTRATO
   # ─────────────────────────────────────────────────────
   validar:
-    runs-on: ubuntu-latest    # VM Linux gratuita do GitHub
+    runs-on: ubuntu-latest # VM Linux gratuita do GitHub
     steps:
-
       - name: 1. Baixar o código
-        uses: actions/checkout@v4   # action pronta da biblioteca
+        uses: actions/checkout@v4 # action pronta da biblioteca
 
       - name: 2. Instalar Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: 3. Validar openapi.yaml com Spectral
-        run: npx @stoplight/spectral-cli lint openapi.yaml
+        run: npx @stoplight/spectral-cli lint openapi.yaml -o oas
         # Se falhar aqui → pipeline PARA!
 
   # ─────────────────────────────────────────────────────
@@ -33,12 +31,11 @@ jobs:
   # Só roda se o Job "validar" passar!
   # ─────────────────────────────────────────────────────
   publicar-docs:
-    needs: validar             # ← depende do job anterior
+    needs: validar # ← depende do job anterior
     runs-on: ubuntu-latest
     permissions:
-      contents: write          # permissão para escrever no Pages
+      contents: write # permissão para escrever no Pages
     steps:
-
       - name: 1. Baixar código
         uses: actions/checkout@v4
 
@@ -50,6 +47,6 @@ jobs:
       - name: 3. Publicar no GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}  # automático!
-          publish_dir:  ./docs
+          github_token: ${{ secrets.GITHUB_TOKEN }} # automático!
+          publish_dir: ./docs
           commit_message: "docs: documentação atualizada"
