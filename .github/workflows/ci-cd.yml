@@ -23,7 +23,7 @@ jobs:
           node-version: "20"
 
       - name: 3. Validar openapi.yaml com Spectral
-        run: npx @stoplight/spectral-cli lint openapi.yaml -o oas
+        run: npx @stoplight/spectral-cli lint openapi.yaml
         # Se falhar aqui → pipeline PARA!
 
   # ─────────────────────────────────────────────────────
