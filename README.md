@@ -22,4 +22,4 @@ Remove uma nota do sistema.
 
 Documentação no GitHub Pages
 
-https://SEU-USUARIO.github.io/notas-api/
+https://jhowsoares.github.io/notas-api/
