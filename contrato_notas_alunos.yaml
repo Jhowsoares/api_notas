@@ -1,0 +1,205 @@
+openapi: 3.0.0
+
+info:
+  title: notas
+  description: api de notas
+  version: v1
+
+servers:
+  - url: http://api.notas.com/v1
+    description: Servidor de produção
+
+security:
+  - bearerAuth: []
+
+paths:
+  /notas:
+    get:
+      summary: Listar notas
+      operationId: listarNotas
+      tags:
+        - notas
+
+      parameters:
+        - name: notas
+          in: query
+          required: true
+          description: as notas do aluno
+          schema:
+            type: number
+
+        - name: cursor
+          in: query
+          required: false
+          description: Token da página anterior
+          schema:
+            type: string
+
+        - name: limit
+          in: query
+          required: false
+          description: Itens por página
+          schema:
+            type: integer
+
+      responses:
+        "200":
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Nota"
+
+                  next_cursor:
+                    type: string
+                    nullable: true
+                    description: Token para próxima página
+
+                  has_more:
+                    type: boolean
+                    description: Se há mais páginas
+
+        "400":
+          description: Dados inválidos
+
+        "401":
+          description: Não autorizado
+
+        "404":
+          description: Não encontrado
+
+    post:
+      summary: Criar nota
+      operationId: criarNota
+      tags:
+        - notas
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nome_aluno
+                - valor_nota
+
+              properties:
+                nome_aluno:
+                  type: string
+
+                valor_nota:
+                  type: number
+
+      responses:
+        "201":
+          description: Criado com sucesso
+
+  /notas/{id}:
+    get:
+      summary: Exibir nota única
+      operationId: exibirNota
+      tags:
+        - notas
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        "200":
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Nota"
+
+        "404":
+          description: Não encontrado
+
+    put:
+      summary: Atualizar nota
+      operationId: atualizarNota
+      tags:
+        - notas
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+
+              properties:
+                nome_aluno:
+                  type: string
+
+                valor_nota:
+                  type: number
+
+      responses:
+        "200":
+          description: Sucesso
+
+    delete:
+      summary: Deletar nota
+      operationId: deletarNota
+      tags:
+        - notas
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        "200":
+          description: Sucesso
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Nota:
+      type: object
+      properties:
+        id:
+          type: integer
+
+        nome_aluno:
+          type: string
+
+        criado_em:
+          type: string
+          format: date-time
+
+        atualizado_em:
+          type: string
+          format: date-time
+
+        ativo:
+          type: boolean
+
+        nota:
+          type: number
