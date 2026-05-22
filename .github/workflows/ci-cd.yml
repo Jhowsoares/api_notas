@@ -1,0 +1,56 @@
+# Nome exibido na aba "Actions" do GitHub
+name: CI/CD — Minha API
+
+# GATILHO: executar quando houver push na branch main
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:        # permite executar manualmente
+
+jobs:
+
+  # ─────────────────────────────────────────────────────
+  # JOB 1: VALIDAR O CONTRATO
+  # ─────────────────────────────────────────────────────
+  validar:
+    runs-on: ubuntu-latest    # VM Linux gratuita do GitHub
+    steps:
+
+      - name: 1. Baixar o código
+        uses: actions/checkout@v4   # action pronta da biblioteca
+
+      - name: 2. Instalar Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache:        'npm'     # cache para ser mais rápido
+
+      - name: 3. Validar openapi.yaml com Spectral
+        run: npx @stoplight/spectral-cli lint openapi.yaml
+        # Se falhar aqui → pipeline PARA!
+
+  # ─────────────────────────────────────────────────────
+  # JOB 2: PUBLICAR DOCUMENTAÇÃO
+  # Só roda se o Job "validar" passar!
+  # ─────────────────────────────────────────────────────
+  publicar-docs:
+    needs: validar             # ← depende do job anterior
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write          # permissão para escrever no Pages
+    steps:
+
+      - name: 1. Baixar código
+        uses: actions/checkout@v4
+
+      - name: 2. Gerar HTML com Redoc
+        run: |
+          mkdir -p docs
+          npx --yes @redocly/cli build-docs openapi.yaml             --output docs/index.html
+
+      - name: 3. Publicar no GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # automático!
+          publish_dir:  ./docs
+          commit_message: "docs: documentação atualizada"
